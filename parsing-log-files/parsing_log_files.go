@@ -13,7 +13,7 @@ func SplitLogLine(text string) []string {
 }
 
 func CountQuotedPasswords(lines []string) int {
-	reg := regexp.MustCompile(`"`)
+	reg := regexp.MustCompile(`(?i)"(.*)password(.*)"`)
 	cnt := 0
 	for _, l := range lines {
 		if reg.MatchString(l) {
@@ -24,9 +24,20 @@ func CountQuotedPasswords(lines []string) int {
 }
 
 func RemoveEndOfLineText(text string) string {
-	panic("Please implement the RemoveEndOfLineText function")
+	reg := regexp.MustCompile(`end-of-line([0-9]*)`)
+	return reg.ReplaceAllString(text, "")
 }
 
 func TagWithUserName(lines []string) []string {
-	panic("Please implement the TagWithUserName function")
+	reg := regexp.MustCompile(`User\s+(\S+)`)
+	ret := make([]string, len(lines))
+	for i, line := range lines {
+		if reg.MatchString(line) {
+			usrName := reg.FindStringSubmatch(line)[1]
+			ret[i] = "[USR] " + usrName + " " + line
+		} else {
+			ret[i] = line
+		}
+	}
+	return ret
 }
