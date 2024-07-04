@@ -1,6 +1,9 @@
 package parsinglogfiles
 
-import "regexp"
+import (
+	"fmt"
+	"regexp"
+)
 
 func IsValidLine(text string) bool {
 	reg := regexp.MustCompile(`^\[(TRC|DBG|INF|WRN|ERR|FTL)\]`)
@@ -8,12 +11,12 @@ func IsValidLine(text string) bool {
 }
 
 func SplitLogLine(text string) []string {
-	reg := regexp.MustCompile(`<(~|\*|=|-)*>`)
+	reg := regexp.MustCompile(`<[~*=-]*>`)
 	return reg.Split(text, -1)
 }
 
 func CountQuotedPasswords(lines []string) int {
-	reg := regexp.MustCompile(`(?i)"(.*)password(.*)"`)
+	reg := regexp.MustCompile(`(?i)".*password.*"`)
 	cnt := 0
 	for _, l := range lines {
 		if reg.MatchString(l) {
@@ -24,7 +27,7 @@ func CountQuotedPasswords(lines []string) int {
 }
 
 func RemoveEndOfLineText(text string) string {
-	reg := regexp.MustCompile(`end-of-line([0-9]*)`)
+	reg := regexp.MustCompile(`end-of-line\d*`)
 	return reg.ReplaceAllString(text, "")
 }
 
@@ -32,9 +35,9 @@ func TagWithUserName(lines []string) []string {
 	reg := regexp.MustCompile(`User\s+(\S+)`)
 	ret := make([]string, len(lines))
 	for i, line := range lines {
-		if reg.MatchString(line) {
-			usrName := reg.FindStringSubmatch(line)[1]
-			ret[i] = "[USR] " + usrName + " " + line
+		matches := reg.FindStringSubmatch(line)
+		if len(matches) > 1 {
+			ret[i] = fmt.Sprintf("[USR] %s %s", matches[1], line)
 		} else {
 			ret[i] = line
 		}
