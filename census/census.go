@@ -26,7 +26,7 @@ func (r *Resident) HasRequiredInfo() bool {
 func (r *Resident) Delete() {
 	r.Name = ""
 	r.Age = 0
-	r.Address = map[string]string(nil)
+	r.Address = nil
 }
 
 // Count counts all residents that have provided the required information.
